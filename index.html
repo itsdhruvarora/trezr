@@ -1080,7 +1080,7 @@
             
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-number">+73%</div> <div class="stat-label">Gold 1-Year Return</div>
+                    <div class="stat-number">+13%</div> <div class="stat-label">Gold 1-Year Return</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number">+73%</div>
@@ -1105,7 +1105,7 @@
                         <label style="color: var(--text-light);">in Gold 1 year ago...</label>
                     </div>
                     <div class="calculator-result">
-                        <div class="result-amount" id="result-amount">₹17,300</div>
+                        <div class="result-amount" id="result-amount">₹11,300</div>
                         <div>You'd have today (Investment Value)</div>
                     </div>
                 </div>
@@ -1114,13 +1114,14 @@
                     <h3 style="text-align: center;">Estimated Rewards</h3>
                     <p class="rewards-desc">Invest ₹10,000 and after 1 year you'd get a reward of...</p>
                     <div class="rewards-value">₹250</div>
-                    <p class="rewards-breakdown">(₹50 joining bonus + ₹200 (2% reward))</p>
+                    <p class="rewards-breakdown">(₹50 joining bonus + ₹200 from 2% of ₹10,000)</p>
                 </div>
             </div>
 
             <div style="margin-top: 4rem;">
                 <h3>India's Top Mutual Funds (5-Year CAGR)</h3>
                 <div class="stats-grid">
+                    <<!-- Changed Gold 1-Year Return to +13% as per user's latest input -->
                     <div class="stat-card">
                         <div style="font-size: 2.2rem; margin-bottom: 0.8rem;">🥇</div>
                         <div class="stat-number">~25%</div>
@@ -1146,7 +1147,7 @@
             <p>Your future self is waiting at the top of the ladder. Join the dopamine-finance movement and earn while you grow.</p>
             <!-- Formspree integration: action attribute updated and name="email" added to input -->
             <form class="waitlist-form" method="POST" action="https://formspree.io/f/xwpbggnw">
-                <input type="email" placeholder="Enter your email" required name="email">
+                <input type="email" placeholder="Enter your email" required name="email"> <!-- Added name="email" -->
                 <button type="submit">Join Waitlist</button>
             </form>
             <p id="waitlist-message" aria-live="polite"></p>
@@ -1162,23 +1163,32 @@
         // Investment calculator
         const investmentInput = document.getElementById('investment-amount');
         const resultAmount = document.getElementById('result-amount');
+        const rewardsValue = document.querySelector('.rewards-value');
+        const rewardsDesc = document.querySelector('.rewards-desc');
+        const rewardsBreakdown = document.querySelector('.rewards-breakdown');
 
-        // Note: Gold 1-Year return is now +73% as per user request for the example calculation
-        const GOLD_1_YEAR_RETURN_PERCENT = 0.73; 
+        // Note: Gold 1-Year return is now +13% as per user request for the example calculation
+        const GOLD_1_YEAR_RETURN_PERCENT = 0.13; 
+        const JOINING_BONUS = 50; // Fixed joining bonus
+        const REWARD_PERCENTAGE = 0.02; // 2% reward
 
         function updateInvestmentCalculation() {
             const amount = parseFloat(investmentInput.value) || 10000;
             const investmentReturn = amount * GOLD_1_YEAR_RETURN_PERCENT;
             const totalValue = Math.round(amount + investmentReturn); 
             resultAmount.textContent = `₹${totalValue.toLocaleString()}`;
+            
+            // Update rewards
+            const rewardAmount = Math.round(amount * REWARD_PERCENTAGE);
+            const totalReward = JOINING_BONUS + rewardAmount;
+            
+            rewardsValue.textContent = `₹${totalReward.toLocaleString()}`;
+            rewardsDesc.textContent = `Invest ₹${amount.toLocaleString()} and after 1 year you'd get a reward of...`;
+            rewardsBreakdown.textContent = `(₹${JOINING_BONUS} joining bonus + ₹${rewardAmount.toLocaleString()} from ${REWARD_PERCENTAGE * 100}% of ₹${amount.toLocaleString()})`;
         }
 
         investmentInput.addEventListener('input', updateInvestmentCalculation);
         updateInvestmentCalculation(); // Initial calculation on load
-
-        // Rewards Widget: Static values as per user request
-        // No JS needed for the rewards widget beyond initial display, as it's not a calculator now.
-        // The values are hardcoded in the HTML as requested.
 
         // Smooth scrolling for navigation links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
