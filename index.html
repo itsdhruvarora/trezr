@@ -1019,7 +1019,7 @@
         </section>
 
         <section id="how-it-works" class="section how-it-works">
-            <h2> Trezr - Your Path to Financial Fitness</h2>
+            <h2> Trezr - Your Path to Financial&nbsp;Fitness</h2>
             <div class="steps">
                 <div class="step">
                     <div class="step-number">1</div>
@@ -1144,8 +1144,9 @@
         <section id="waitlist" class="final-cta">
             <h2>Ready to Start Your First Streak?</h2>
             <p>Your future self is waiting at the top of the ladder. Join the dopamine-finance movement and earn while you grow.</p>
-            <form class="waitlist-form">
-                <input type="email" placeholder="Enter your email" required>
+            <!-- Formspree integration: action attribute updated and name="email" added to input -->
+            <form class="waitlist-form" method="POST" action="https://formspree.io/f/xwpbggnw">
+                <input type="email" placeholder="Enter your email" required name="email">
                 <button type="submit">Join Waitlist</button>
             </form>
             <p id="waitlist-message" aria-live="polite"></p>
@@ -1213,22 +1214,15 @@
             observer.observe(el);
         });
 
-        // Waitlist form submission - Replaced alert with message display
-        document.querySelector('.waitlist-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const emailInput = this.querySelector('input[type="email"]');
+        // Waitlist form submission - Now connected to Formspree
+        document.querySelector('.waitlist-form').addEventListener('submit', async function(e) {
+            e.preventDefault(); // Prevent default browser submission
+            const emailInput = this.querySelector('input[name="email"]');
             const email = emailInput.value;
             const messageElement = document.getElementById('waitlist-message');
 
-            if (email) {
-                messageElement.textContent = 'Thanks for joining the waitlist for Trezr! We\'re excited to have you on board. 🚀';
-                messageElement.classList.add('show');
-                emailInput.value = '';
-                setTimeout(() => {
-                    messageElement.classList.remove('show');
-                    messageElement.textContent = '';
-                }, 5000); // Message disappears after 5 seconds
-            } else {
+            // Basic client-side validation
+            if (!email || !emailInput.checkValidity()) { // Check for empty and valid email format
                 messageElement.textContent = 'Please enter a valid email address.';
                 messageElement.classList.add('show');
                 messageElement.style.color = '#FF4444'; // Red for error
@@ -1237,6 +1231,44 @@
                     messageElement.textContent = '';
                     messageElement.style.color = 'white'; // Reset color
                 }, 3000);
+                return;
+            }
+
+            const formData = new FormData(this); // Get all form data
+
+            try {
+                const response = await fetch(this.action, { // Use the form's action URL (Formspree endpoint)
+                    method: 'POST',
+                    body: formData, // FormData automatically sets 'multipart/form-data'
+                    headers: {
+                        'Accept': 'application/json' // Tell Formspree you want a JSON response
+                    }
+                });
+
+                if (response.ok) {
+                    messageElement.textContent = 'Thanks for joining the waitlist for Trezr! We\'re excited to have you on board. 🚀';
+                    messageElement.classList.add('show');
+                    emailInput.value = ''; // Clear input on success
+                    messageElement.style.color = 'white'; // Ensure success message is white
+                } else {
+                    // Read error message from Formspree's response
+                    const errorData = await response.json();
+                    messageElement.textContent = errorData.errors ? errorData.errors.map(err => err.message).join(', ') : 'Something went wrong. Please try again later.';
+                    messageElement.classList.add('show');
+                    messageElement.style.color = '#FF4444'; // Red for error
+                    console.error('Formspree submission error:', response.status, errorData);
+                }
+            } catch (error) {
+                console.error('Network error during Formspree submission:', error);
+                messageElement.textContent = 'Network error. Please try again.';
+                messageElement.classList.add('show');
+                messageElement.style.color = '#FF4444';
+            } finally {
+                setTimeout(() => {
+                    messageElement.classList.remove('show');
+                    messageElement.textContent = '';
+                    messageElement.style.color = 'white'; // Reset color
+                }, 5000); // Message disappears after 5 seconds
             }
         });
 
